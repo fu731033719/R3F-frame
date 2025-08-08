@@ -17,6 +17,17 @@ export interface Object3DRefData {
   object: THREE.Object3D | null;
 }
 
+export interface InputData {
+  keys: Record<string, boolean>;
+  mouse: {
+    buttons: Record<number, boolean>;
+    delta: [number, number];
+    wheel: number;
+  };
+}
+
 export const Transform = defineComponent<TransformData>('Transform');
 export const Spin = defineComponent<SpinData>('Spin');
 export const Object3DRef = defineComponent<Object3DRefData>('Object3DRef');
+export const Input = defineComponent<InputData>('Input');
+export const PlayerControlled = defineComponent<{}>('PlayerControlled');
