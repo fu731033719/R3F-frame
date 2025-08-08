@@ -34,6 +34,9 @@ export function PerformanceDemo() {
   useEffect(() => {
     const mesh = meshRef.current;
     if (!mesh) return;
+    if (!mesh.instanceColor || mesh.instanceColor.count !== COUNT) {
+      mesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(COUNT * 3), 3);
+    }
     const dummy = new THREE.Object3D();
 
     const cols = 100;
@@ -83,7 +86,7 @@ export function PerformanceDemo() {
       const y = bob ? Math.sin(t + phases[i]) * bobAmplitude : 0;
       dummy.position.set(x * spacing, y, z * spacing);
 
-      const ry = rotate ? ((t + phases[i]) * 0.5) : 0;
+      const ry = rotate ? (t + phases[i]) * 0.5 : 0;
       dummy.rotation.set(0, ry, 0);
 
       dummy.scale.set(0.45, 0.45, 0.45);
@@ -110,7 +113,8 @@ export function PerformanceDemo() {
       <OrbitControls makeDefault />
       <instancedMesh ref={meshRef} args={[undefined as any, undefined as any, COUNT]} frustumCulled={true}>
         <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial color={'white'} vertexColors />
+        {/* <meshStandardMaterial color={'white'} vertexColors /> */}
+         <meshStandardMaterial vertexColors metalness={0} roughness={0.9} />
       </instancedMesh>
     </>
   );
