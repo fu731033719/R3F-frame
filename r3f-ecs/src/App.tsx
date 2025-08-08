@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect,useState } from 'react';
 import './App.css';
 import { ECSCanvas } from './ecs/react';
 import { World } from './ecs/core';
@@ -11,7 +11,7 @@ import { InputController } from './scene/InputController';
 import { PerformanceDemo } from './scene/demos/PerformanceDemo';
 
 function App() {
-  const world = useMemo(() => new World(), []);
+  const [world, setWorld] = useState<World>(() => new World());
   const [demo, setDemo] = useState<'move' | 'scale' | 'rotate' | 'combo' | 'perf'>('combo');
 
   useEffect(() => {
@@ -21,21 +21,25 @@ function App() {
     };
   }, [world]);
 
+  useEffect(() => {
+    setWorld(new World());
+  }, [demo]);
+
   return (
     <div className="app-root" style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column' }}>
       <div style={{ padding: '8px', display: 'flex', gap: 8 }}>
-        {/* <button onClick={() => setDemo('move')} disabled={demo === 'move'}>Move Demo (WASD + Mouse)</button> */}
-        {/* <button onClick={() => setDemo('scale')} disabled={demo === 'scale'}>Scale Demo (Wheel)</button> */}
-        {/* <button onClick={() => setDemo('rotate')} disabled={demo === 'rotate'}>Rotate Demo (Drag)</button> */}
+        <button onClick={() => setDemo('move')} disabled={demo === 'move'}>Move Demo (WASD + Mouse)</button>
+        <button onClick={() => setDemo('scale')} disabled={demo === 'scale'}>Scale Demo (Wheel)</button>
+        <button onClick={() => setDemo('rotate')} disabled={demo === 'rotate'}>Rotate Demo (Drag)</button>
         <button onClick={() => setDemo('combo')} disabled={demo === 'combo'}>Combo Demo (WASD + 拖动 + 滚轮)</button>
         <button onClick={() => setDemo('perf')} disabled={demo === 'perf'}>性能 Demo (100,000 cubes)</button>
       </div>
       <div style={{ flex: 1 }}>
-        <ECSCanvas world={world} camera={{ position: [4, 3, 6], fov: 60 }}>
+        <ECSCanvas key={demo} world={world} camera={{ position: [4, 3, 6], fov: 60 }}>
           <InputController />
-          {/* {demo === 'move' && <MoveDemo />}
+          {demo === 'move' && <MoveDemo />}
           {demo === 'scale' && <ScaleDemo />}
-          {demo === 'rotate' && <RotateDemo />} */}
+          {demo === 'rotate' && <RotateDemo />}
           {demo === 'combo' && <ComboDemo />}
           {demo === 'perf' && <PerformanceDemo />}
         </ECSCanvas>
