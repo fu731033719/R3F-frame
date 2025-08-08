@@ -6,7 +6,7 @@ import { useControls } from 'leva';
 
 export function PerformanceDemo() {
   const meshRef = useRef<THREE.InstancedMesh>(null);
-  const COUNT = 5000;
+  const COUNT = 100000;
 
   // Controls panel
   const { animate, rotate, bob, colorCycle, speed, bobAmplitude } = useControls('Performance', {
