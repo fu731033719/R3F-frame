@@ -8,7 +8,6 @@ export function PerformanceDemo() {
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const COUNT = 5000;
 
-  // Controls panel
   const { animate, rotate, bob, colorCycle, speed, bobAmplitude } = useControls('Performance', {
     animate: true,
     rotate: true,
@@ -18,7 +17,6 @@ export function PerformanceDemo() {
     bobAmplitude: { value: 0.25, min: 0, max: 1, step: 0.01 },
   });
 
-  // Precomputed per-instance randoms to avoid per-frame RNG cost
   const phases = useMemo(() => {
     const a = new Float32Array(COUNT);
     for (let i = 0; i < COUNT; i++) a[i] = Math.random() * Math.PI * 2;
@@ -34,8 +32,13 @@ export function PerformanceDemo() {
   useEffect(() => {
     const mesh = meshRef.current;
     if (!mesh) return;
-    const dummy = new THREE.Object3D();
 
+    // Ensure instanceColor attribute exists before first render
+    if (!mesh.instanceColor || mesh.instanceColor.count !== COUNT) {
+      mesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(COUNT * 3), 3);
+    }
+
+    const dummy = new THREE.Object3D();
     const cols = 100;
     const rows = Math.ceil(COUNT / cols);
     const spacing = 0.5;
@@ -51,12 +54,10 @@ export function PerformanceDemo() {
       dummy.updateMatrix();
       mesh.setMatrixAt(i, dummy.matrix);
 
-      // per-instance color
       color.setHSL(hues[i], 0.6, 0.5);
       mesh.setColorAt(i, color);
     }
 
-    // Apply initial buffers
     mesh.instanceMatrix.needsUpdate = true;
     if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
   }, [COUNT, hues]);
@@ -71,7 +72,6 @@ export function PerformanceDemo() {
     const rows = Math.ceil(COUNT / cols);
     const spacing = 0.5;
 
-    // Time scaled by control speed
     const t = state.clock.elapsedTime * speed;
 
     const color = new THREE.Color();
@@ -83,7 +83,7 @@ export function PerformanceDemo() {
       const y = bob ? Math.sin(t + phases[i]) * bobAmplitude : 0;
       dummy.position.set(x * spacing, y, z * spacing);
 
-      const ry = rotate ? ((t + phases[i]) * 0.5) : 0;
+      const ry = rotate ? (t + phases[i]) * 0.5 : 0;
       dummy.rotation.set(0, ry, 0);
 
       dummy.scale.set(0.45, 0.45, 0.45);
@@ -91,7 +91,6 @@ export function PerformanceDemo() {
       mesh.setMatrixAt(i, dummy.matrix);
 
       if (colorCycle) {
-        // shift hue over time for a subtle effect
         color.setHSL(((hues[i] + t * 0.05) % 1 + 1) % 1, 0.6, 0.5);
         mesh.setColorAt(i, color);
       }
@@ -104,13 +103,13 @@ export function PerformanceDemo() {
   return (
     <>
       <Stats />
-      <ambientLight intensity={0.6} />
-      <directionalLight position={[5, 5, 5]} intensity={0.8} />
+      <ambientLight intensity={0.8} />
+      <directionalLight position={[5, 5, 5]} intensity={0.9} />
       <gridHelper args={[50, 50]} />
       <OrbitControls makeDefault />
       <instancedMesh ref={meshRef} args={[undefined as any, undefined as any, COUNT]} frustumCulled={true}>
         <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial color={'white'} vertexColors />
+        <meshStandardMaterial vertexColors metalness={0} roughness={0.9} />
       </instancedMesh>
     </>
   );
