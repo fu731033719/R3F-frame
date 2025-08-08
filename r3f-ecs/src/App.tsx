@@ -6,11 +6,12 @@ import { renderSyncSystem } from './systems/renderSyncSystem';
 import { MoveDemo } from './scene/demos/MoveDemo';
 import { ScaleDemo } from './scene/demos/ScaleDemo';
 import { RotateDemo } from './scene/demos/RotateDemo';
+import { ComboDemo } from './scene/demos/ComboDemo';
 import { InputController } from './scene/InputController';
 
 function App() {
   const world = useMemo(() => new World(), []);
-  const [demo, setDemo] = useState<'move' | 'scale' | 'rotate'>('move');
+  const [demo, setDemo] = useState<'move' | 'scale' | 'rotate' | 'combo'>('move');
 
   useEffect(() => {
     world.addSystem(renderSyncSystem);
@@ -25,6 +26,7 @@ function App() {
         <button onClick={() => setDemo('move')} disabled={demo === 'move'}>Move Demo (WASD + Mouse)</button>
         <button onClick={() => setDemo('scale')} disabled={demo === 'scale'}>Scale Demo (Wheel)</button>
         <button onClick={() => setDemo('rotate')} disabled={demo === 'rotate'}>Rotate Demo (Drag)</button>
+        <button onClick={() => setDemo('combo')} disabled={demo === 'combo'}>Combo Demo (WASD + Drag + Wheel)</button>
       </div>
       <div style={{ flex: 1 }}>
         <ECSCanvas world={world} camera={{ position: [4, 3, 6], fov: 60 }}>
@@ -32,6 +34,7 @@ function App() {
           {demo === 'move' && <MoveDemo />}
           {demo === 'scale' && <ScaleDemo />}
           {demo === 'rotate' && <RotateDemo />}
+          {demo === 'combo' && <ComboDemo />}
         </ECSCanvas>
       </div>
     </div>
