@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css';
 import { ECSCanvas } from './ecs/react';
 import { World } from './ecs/core';
@@ -11,8 +11,13 @@ import { InputController } from './scene/InputController';
 import { PerformanceDemo } from './scene/demos/PerformanceDemo';
 
 function App() {
-  const world = useMemo(() => new World(), []);
   const [demo, setDemo] = useState<'move' | 'scale' | 'rotate' | 'combo' | 'perf'>('move');
+  const [world, setWorld] = useState<World>(() => new World());
+
+  // Create a fresh world whenever demo changes to avoid cross-demo entity leakage
+  useEffect(() => {
+    setWorld(new World());
+  }, [demo]);
 
   useEffect(() => {
     world.addSystem(renderSyncSystem);
@@ -31,7 +36,8 @@ function App() {
         <button onClick={() => setDemo('perf')} disabled={demo === 'perf'}>Performance Demo (5k cubes)</button>
       </div>
       <div style={{ flex: 1 }}>
-        <ECSCanvas world={world} camera={{ position: [4, 3, 6], fov: 60 }}>
+        <ECSCanvas key={demo} world={world} camera={{ position: [4, 3, 6], fov: 60 }}>
+          {/* Input is only needed for interactive demos; harmless in perf */}
           <InputController />
           {demo === 'move' && <MoveDemo />}
           {demo === 'scale' && <ScaleDemo />}
